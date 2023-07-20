@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./deploy/Dockerfile
+      target: prod
+    image: seniordev_demo:${SENIORDEV_DEMO_VERSION:-latest}
+    restart: always
+    env_file:
+    - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SENIORDEV_DEMO_HOST: 0.0.0.0
+      SENIORDEV_DEMO_DB_HOST: seniordev_demo-db
+      SENIORDEV_DEMO_DB_PORT: 5432
+      SENIORDEV_DEMO_DB_USER: seniordev_demo
+      SENIORDEV_DEMO_DB_PASS: seniordev_demo
+      SENIORDEV_DEMO_DB_BASE: seniordev_demo
+      SENIORDEV_DEMO_REDIS_HOST: seniordev_demo-redis
+
+  db:
+    image: postgres:13.8-bullseye
+    hostname: seniordev_demo-db
+    environment:
+      POSTGRES_PASSWORD: "seniordev_demo"
+      POSTGRES_USER: "seniordev_demo"
+      POSTGRES_DB: "seniordev_demo"
+    volumes:
+    - seniordev_demo-db-data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: pg_isready -U seniordev_demo
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+  redis:
+    image: bitnami/redis:6.2.5
+    hostname: "seniordev_demo-redis"
+    restart: always
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 50
+
+
+
+volumes:
+  seniordev_demo-db-data:
+    name: seniordev_demo-db-data
