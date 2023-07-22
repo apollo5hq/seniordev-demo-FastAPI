@@ -106,8 +106,7 @@ def setup_opentelemetry(app: FastAPI) -> None:  # pragma: no cover
         log_level=logging.getLevelName(settings.log_level.value),
     )
 
-    set_tracer_provider(tracer_provider=tracer_provider)
-
+    set_tracer_provider(tracer_provider=tracer_provider
 
 def stop_opentelemetry(app: FastAPI) -> None:  # pragma: no cover
     """
@@ -164,7 +163,7 @@ def register_shutdown_event(
         await app.state.db_engine.dispose()
 
         await shutdown_redis(app)
-        stop_opentelemetry(app)
+        stop_opentelemetry()
         pass  # noqa: WPS420
 
     return _shutdown
