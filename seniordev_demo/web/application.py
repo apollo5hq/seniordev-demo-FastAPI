@@ -19,9 +19,11 @@ def get_app() -> FastAPI:
 
     :return: application.
     """
+
+    const version = "seniordev_demo"
     app = FastAPI(
         title="seniordev_demo",
-        version=metadata.version("seniordev_demo"),
+        version=metadata.version(version),
         docs_url=None,
         redoc_url=None,
         openapi_url="/api/openapi.json",
